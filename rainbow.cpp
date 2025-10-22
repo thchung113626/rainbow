@@ -131,6 +131,12 @@ bool processXmlHeader(FILE* fpIn, VOLUME& orVolume)
 
 		}
 
+		// Finalize self-closing tags that represent a single logical record
+		// Ensure attribute order does not affect which record gets populated
+		if(strcmp(lszTagName, "rayinfo") == 0) {
+			lnRayInfoIndex++;
+		}
+
 		if(lszContents[0] != '\0')
 		{
 			tag_select_extraction(stack_top(&lpTagStack), lszTagName, lszContents,
@@ -1251,10 +1257,8 @@ void extract_rayinfo(char *iszTag, char *iszData, RAYINFO *orRayinfo, int *onRay
 		orRayinfo->blobid = atoi(iszData);
 	else if(strcmp(iszTag, "rays")==0)
 		orRayinfo->rays = atoi(iszData);
-	else if(strcmp(iszTag, "depth")==0) {
+	else if(strcmp(iszTag, "depth")==0)
 		orRayinfo->depth = atoi(iszData);
-		(*onRayInfoIndex)++;
-	}
 }
 
 void extract_rawdata(char *iszTag, char *iszData, RAWDATA *orRawdata)
