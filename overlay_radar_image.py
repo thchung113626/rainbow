@@ -57,23 +57,14 @@ def overlay_radar_image():
     x, y = shadow.size
     background.paste(shadow, (0, 0, x, y), shadow)
 
-    # Place overlay depending on background resolution.
-    # Keep legacy behavior (top-left) for known layouts where the
-    # overlay was authored to align with the radar background at (0,0).
-    # Only center as a fallback for unknown sizes.
+    # Place overlay by resizing it to exactly match the background size,
+    # then paste at top-left so axes align with the radar image layout.
     bg_w, bg_h = background.size
     fg_w, fg_h = foreground.size
-    if bg_w == 768 and bg_h == 500:
-        background.paste(foreground, (0, 0), foreground)
-    elif bg_w == 918 and bg_h == 650:
-        # Revert to top-left paste for 918x650 to match existing
-        # overlay composition and avoid label misalignment.
-        background.paste(foreground, (0, 0), foreground)
-    else:
-        # Fallback: center for other sizes
-        paste_x = max(0, (bg_w - fg_w) // 2)
-        paste_y = max(0, (bg_h - fg_h) // 2)
-        background.paste(foreground, (paste_x, paste_y), foreground)
+    if (fg_w, fg_h) != (bg_w, bg_h):
+        # Use high-quality resampling to preserve text legibility
+        foreground = foreground.resize((bg_w, bg_h), resample=im.BICUBIC)
+    background.paste(foreground, (0, 0), foreground)
     background.save(outputFile)
 
     # print "overlay_radar_image.py ends ......"
