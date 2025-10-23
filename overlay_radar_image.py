@@ -56,7 +56,23 @@ def overlay_radar_image():
     shadow.putdata(shadowImage)
     x, y = shadow.size
     background.paste(shadow, (0, 0, x, y), shadow)
-    background.paste(foreground, (0, 0), foreground)
+
+    # Place overlay depending on background resolution.
+    # - Keep legacy behavior (top-left) for 768x500 where it was already correct.
+    # - Center the overlay for 918x650 so shapes align with radar center.
+    bg_w, bg_h = background.size
+    fg_w, fg_h = foreground.size
+    if bg_w == 768 and bg_h == 500:
+        background.paste(foreground, (0, 0), foreground)
+    elif bg_w == 918 and bg_h == 650:
+        paste_x = max(0, (bg_w - fg_w) // 2)
+        paste_y = max(0, (bg_h - fg_h) // 2)
+        background.paste(foreground, (paste_x, paste_y), foreground)
+    else:
+        # Fallback: center for other sizes
+        paste_x = max(0, (bg_w - fg_w) // 2)
+        paste_y = max(0, (bg_h - fg_h) // 2)
+        background.paste(foreground, (paste_x, paste_y), foreground)
     background.save(outputFile)
 
     # print "overlay_radar_image.py ends ......"
