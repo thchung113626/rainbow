@@ -58,14 +58,13 @@ def overlay_radar_image():
     background.paste(shadow, (0, 0, x, y), shadow)
 
     # Place overlay depending on background resolution.
-    # Center the overlay so its polar axes align with radar center
-    # for consistent label placement across resolutions.
+    # For known layouts (768x500 and 918x650), paste at top-left (0,0)
+    # because the overlay was authored to align with the radar background
+    # when positioned at the origin.
     bg_w, bg_h = background.size
     fg_w, fg_h = foreground.size
     if (bg_w == 768 and bg_h == 500) or (bg_w == 918 and bg_h == 650):
-        paste_x = max(0, (bg_w - fg_w) // 2)
-        paste_y = max(0, (bg_h - fg_h) // 2)
-        background.paste(foreground, (paste_x, paste_y), foreground)
+        background.paste(foreground, (0, 0), foreground)
     else:
         # Fallback: center for other sizes
         paste_x = max(0, (bg_w - fg_w) // 2)
